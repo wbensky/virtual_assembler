@@ -9,10 +9,8 @@
                      CFLAGC = -c
 
                         SRC = instruction_binary.cpp \
-                              instruction_definition.cpp \
                               test.cpp
                        OBJS = instruction_binary.o \
-                              instruction_definition.o \
                               test.o
                        EXEC = main
 

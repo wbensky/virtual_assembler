@@ -1,5 +1,4 @@
 #include"instruction_binary.h"
-#include"instruction_definition.h"
 #include<iostream>
 InstructionBinary::InstructionBinary():instruction_binary(create_map())
 {
@@ -21,77 +20,83 @@ std::map<std::string, int>& InstructionBinary::create_map()
     if(mutex == 0)
     {
         mutex = 1;
-        m[InstructionDefinition:: MOVB] = 0x1;
-        m[InstructionDefinition:: MOVW] = 0x2;
-        m[InstructionDefinition:: MOVL] = 0x3;
+        m["rrmovb"] = 01000;
+        m["irmovb"] = 01001;
+        m["rmmovb"] = 01002;
+        m["mrmovb"] = 01003;
+        m["rrmovl"] = 01100;
+        m["irmovl"] = 01101;
+        m["rmmovl"] = 01102;
+        m["mrmovl"] = 01103;
 
-        m[InstructionDefinition:: MOVSBW] = 0x4;
-        m[InstructionDefinition:: MOVSBL] = 0x5;
-        m[InstructionDefinition:: MOVSWL] = 0x6;
+        m["inc"] = 02001;
+        m["dec"] = 02002;
+        m["addb"] = 02100;
+        m["subb"] = 02101;
+        m["mulb"] = 02102;
+        m["divb"] = 02103;
+        m["uaddb"] = 02104;
+        m["usubb"] = 02105;
+        m["umulb"] = 02106;
+        m["udivb"] = 02107;
+        m["mod"] = 02003;
+        m["addl"] = 02200;
+        m["subl"] = 02201;
+        m["mull"] = 02202;
+        m["divl"] = 02203;
+        m["uaddl"] = 02204;
+        m["usubl"] = 02205;
+        m["umull"] = 02206;
+        m["udivl"] = 02207;
+        m["fadd"] = 02400;
+        m["fsub"] = 02401;
+        m["fmul"] = 02402;
+        m["fdiv"] = 02403;
 
-        m[InstructionDefinition:: MOVZBW] = 0x7;
-        m[InstructionDefinition:: MOVZBL] = 0x8;
-        m[InstructionDefinition:: MOVZWL] = 0x9;
-        // for more mov instruction
-        m[InstructionDefinition:: PUSHL] = 0x1e;
-        m[InstructionDefinition:: POPL] = 0x1f;
+        m["negb"] = 03000;
+        m["notb"] = 03001;
+        m["xorb"] = 03002;
+        m["orb"] = 03003;
+        m["andb"] = 03004;
+        m["negl"] = 03100;
+        m["notl"] = 03101;
+        m["xorl"] = 03102;
+        m["orl"] = 03103;
+        m["andl"] = 03104;
+        m["sal"] = 03200;
+        m["shl"] = 03201;
+        m["sar"] = 03202;
+        m["shr"] = 03203;
 
-        m[InstructionDefinition:: LEAL] = 0x20;
-        m[InstructionDefinition:: INC] = 0x21;
-        m[InstructionDefinition:: DEC] = 0x22;
-        m[InstructionDefinition:: NEG] = 0x23;
-        m[InstructionDefinition:: NOT] = 0x24;
+        m["cmpb"] = 04000;
+        m["cmpl"] = 04001;
+        m["fcmp"] = 04002;
+        m["testb"] = 04003;
+        m["testl"] = 04004;
 
-        m[InstructionDefinition:: ADD] = 0x25;
-        m[InstructionDefinition:: SUB] = 0x26;
-        m[InstructionDefinition:: IMUL] = 0x27;
-        m[InstructionDefinition:: XOR] = 0x28;
-        m[InstructionDefinition:: OR] = 0x29;
-        m[InstructionDefinition:: AND] = 0x2a;
 
-        m[InstructionDefinition:: FADD] = 0x2b;
-        m[InstructionDefinition:: FSUB] = 0x2c;
-        m[InstructionDefinition:: FIMUL] = 0x2d;
-        m[InstructionDefinition:: FDIV] = 0x2e;
+        m["jmp"] = 05000;
+        m["je"] = 05002;
+        m["jne"] = 05003;
+        m["js"] = 05004;
+        m["jns"] = 05005;
+        m["jg"] = 05006;
+        m["jge"] = 05007;
+        m["jl"] = 05010;
+        m["jle"] = 05011;
+        m["ja"] = 05012;
+        m["jae"] = 05013;
+        m["jb"] = 05014;
+        m["jbe"] = 05015;
 
-        m[InstructionDefinition:: SAL] = 0x2f;
-        m[InstructionDefinition:: SHL] = 0x31;
-        m[InstructionDefinition:: SAR] = 0x32;
-        m[InstructionDefinition:: SHR] = 0x33;
-
-        m[InstructionDefinition:: IMULL] = 0x34;
-        m[InstructionDefinition:: MULL] = 0x35;
-        m[InstructionDefinition:: CLTD] = 0x36;
-        m[InstructionDefinition:: IDIVL] = 0x37;
-        m[InstructionDefinition:: DIVL] = 0x38;
-
-        m[InstructionDefinition:: CMPB] = 0x70;
-        m[InstructionDefinition:: CMPW] = 0x71;
-        m[InstructionDefinition:: CMPL] = 0x72;
-        m[InstructionDefinition:: FCMP] = 0x73;
-        m[InstructionDefinition:: TESTB] = 0x74;
-        m[InstructionDefinition:: TESTW] = 0x75;
-        m[InstructionDefinition:: TESTL] = 0x76;
-
-        m[InstructionDefinition:: JMP] = 0x80;
-        m[InstructionDefinition:: JE] = 0x81;
-        m[InstructionDefinition:: JNE] = 0x82;
-        m[InstructionDefinition:: JS] = 0x83;
-        m[InstructionDefinition:: JNS] = 0x84;
-        m[InstructionDefinition:: JG] = 0x85;
-        m[InstructionDefinition:: JGE] = 0x86;
-        m[InstructionDefinition:: JL] = 0x87;
-        m[InstructionDefinition:: JLE] = 0x88;
-        m[InstructionDefinition:: JA] = 0x89;
-        m[InstructionDefinition:: JAE] = 0x8a;
-        m[InstructionDefinition:: JB] = 0x8b;
-        m[InstructionDefinition:: JBE] = 0x8c;
-
-        m[InstructionDefinition:: CALL] = 0xe0;
-        m[InstructionDefinition::LEAVE] = 0xe1;
-        m[InstructionDefinition::RET] = 0xe2;
-
-        m[InstructionDefinition::INT] = 0xf0;
+        m["call"] = 06000;
+        m["leave"] = 06001;
+        m["ret"] = 06002;
+        m["int"] = 06003;
+        m["halt"] = 06004;
+        m["nop"] = 06005;
+        m["pushl"] = 06006;
+        m["popl"] = 06007;
     }
     return m;
 }
