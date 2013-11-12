@@ -1,6 +1,4 @@
 #include "instruction_definition.h"
-#include<iostream>
-
 const std::string InstructionDefinition::MOVB = "movb"; // d <= s
 const std::string InstructionDefinition::MOVW = "movw";
 const std::string InstructionDefinition::MOVL = "movl";
@@ -73,16 +71,4 @@ const std::string InstructionDefinition::LEAVE = "leave";
 const std::string InstructionDefinition::RET = "ret";
 //other
 const std::string InstructionDefinition::INT = "ret";
-using namespace std;
-
-int main()
-{
-    const map<string, int> test = {
-        map<string, int>{"1", 1},
-        {"2", 2},
-    };
-
-
-    cout << InstructionDefinition::MOVB<< endl;
-}
 

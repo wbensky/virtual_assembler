@@ -1,3 +1,6 @@
+#ifndef VA_INSTRUCTION_INSTRUCTONDEFINITION_H_
+#define VA_INSTRUCTION_INSTRUCTONDEFINITION_H_
+
 #include<string>
 #include<map>
 
@@ -79,3 +82,5 @@ public:
 //other
     static const std::string INT;
 };
+
+#endif
