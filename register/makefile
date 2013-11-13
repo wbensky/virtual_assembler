@@ -9,8 +9,10 @@
                      CFLAGC = -c
 
                         SRC = register_definition.cpp \
+                              register_operates.cpp \
                               test.cpp
                        OBJS = register_definition.o \
+                              register_operates.o \
                               test.o
                        EXEC = main
 
