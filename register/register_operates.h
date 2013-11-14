@@ -16,7 +16,7 @@ class RegisterOperates
         unsigned int &rsi;
         unsigned int &rdi;
         bool &zf, &sf, &of, &cf;
-        unsigned int pc;
+        unsigned int &pc;
     public:
         RegisterOperates();
 
@@ -28,7 +28,6 @@ class RegisterOperates
         bool get_of();
         void set_cf(bool);
         bool get_cf();
-
         void set_pc(unsigned int);
         unsigned int get_pc();
 
@@ -36,21 +35,9 @@ class RegisterOperates
         void get_register(int, void*);
         void print();
 
-        static unsigned int (&create())[8]
-        {
-            static unsigned int buffer[8] = {0};
-            return buffer;
-        }
-
-        static bool(& create_symbols_buffer())[4]
-        {
-            static bool buffer[4] = {0};
-            for(int i = 0; i< 4;i++)
-                buffer[i] = 1;
-            return buffer;
-        }
-
-
+        static unsigned int (&create_register_buffer())[8];
+        static bool(& create_symbols_buffer())[4];
+        static unsigned int& create_pc_buffer();
 };
 
 #endif

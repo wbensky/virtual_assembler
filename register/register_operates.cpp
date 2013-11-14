@@ -1,7 +1,7 @@
 #include"register_operates.h"
 
 RegisterOperates::RegisterOperates():
-    register_buffer(create()),
+    register_buffer(create_register_buffer()),
     symbols_buffer(create_symbols_buffer()),
     rax(register_buffer[0]),
     rbx(register_buffer[1]),
@@ -14,12 +14,29 @@ RegisterOperates::RegisterOperates():
     zf(symbols_buffer[0]),
     sf(symbols_buffer[1]),
     of(symbols_buffer[2]),
-    cf(symbols_buffer[3]),pc(0)
+    cf(symbols_buffer[3]),pc(create_pc_buffer())
 {
 
 }
 
+unsigned int (&RegisterOperates::create_register_buffer())[8]
+{
+    static unsigned int buffer[8] = {0};
+    return buffer;
+}
 
+bool(& RegisterOperates::create_symbols_buffer())[4]
+{
+    static bool buffer[4] = {0};
+    for(int i = 0; i< 4;i++)
+        buffer[i] = 1;
+    return buffer;
+}
+unsigned int &RegisterOperates::create_pc_buffer()
+{
+    static unsigned int buffer;
+    return buffer;
+}
 
 void RegisterOperates::set_register(int address, void * num)
 {
