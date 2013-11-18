@@ -1,5 +1,4 @@
 #include"memory_manage.h"
-#include<iostream>
 
 MemoryManage::MemoryManage():
     memory_buffer(create_memory_buffer())
@@ -56,9 +55,7 @@ int MemoryManage::write_data(int address,
         unsigned char data[],
         int size)
 {
-    for(int i = 0; i < size; i++)
-    {
-    }
+    memcpy(&(memory_buffer[address]), data, size);
     return 0;
 }
 
@@ -66,18 +63,21 @@ int MemoryManage::write_data(int address,
         unsigned int data[],
         int size)
 {
+    memcpy(&(memory_buffer[address]), data, size * 4);
     return 0;
 }
 int MemoryManage::read_data(int address,
         unsigned char data[],
         int size)
 {
+    memcpy(data, &(memory_buffer[address]), size);
     return 0;
 }
 int MemoryManage::read_data(int address,
         unsigned int data[],
         int size)
 {
+    memcpy(data, &(memory_buffer[address]), size * 4);
     return 0;
 }
 int MemoryManage::print()
@@ -85,11 +85,9 @@ int MemoryManage::print()
     for(int i = 0; i < 12; i++)
     {
         unsigned int t = memory_buffer[i];
-        std::cout << std::hex << t << "\n";
+        std::cout << std::hex << t << " ";
     }
+    std::cout << "\n";
     return 0;
 }
-
-
-
 

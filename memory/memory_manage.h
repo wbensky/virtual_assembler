@@ -1,7 +1,8 @@
 #ifndef VA_MEMORY_MEMORY_MANAGE_H_
 #define VA_MEMORY_MEMORY_MANAGE_H_
-
-
+#include<iostream>
+#include<cstring>
+#include<cstdlib>
 /*
    memory management, include write instruction into the memory
    and read instruction from the memory, and write the data into
@@ -44,8 +45,6 @@ class MemoryManage
                 unsigned int data[],
                 int size);
         int print();
-
-
 };
 
 #endif
