@@ -32,6 +32,7 @@ bool(& RegisterOperates::create_symbols_buffer())[4]
         buffer[i] = 1;
     return buffer;
 }
+
 unsigned int &RegisterOperates::create_pc_buffer()
 {
     static unsigned int buffer;
@@ -114,6 +115,16 @@ bool RegisterOperates::get_cf()
 void RegisterOperates::set_pc(unsigned int value)
 {
     pc = value;
+}
+
+void RegisterOperates::set_rsp(unsigned int value)
+{
+    rsp = value;
+}
+
+unsigned int RegisterOperates::get_rsp()
+{
+    return rsp;
 }
 
 unsigned int RegisterOperates::get_pc()

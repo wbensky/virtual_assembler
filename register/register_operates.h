@@ -31,6 +31,9 @@ class RegisterOperates
         void set_pc(unsigned int);
         unsigned int get_pc();
 
+        unsigned int get_rsp();
+        void set_rsp(unsigned int);
+
         void set_register(int , void *);
         void get_register(int, void*);
         void print();
