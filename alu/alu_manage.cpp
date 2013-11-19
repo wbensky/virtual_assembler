@@ -1,58 +1,24 @@
 #include"alu_manage.h"
 
-
-ALUManage::ALUManage()
+ALUManage::ALUManage(int cont, int a, int b):
+    controller(cont),vala(a), valb(b)
 {
 }
 
-
-unsigned int ALUManage::ac_uadder(unsigned int vala,
-        unsigned int valb,
-        int &carry)
+int ALUManage::select_operate()
 {
-    std::bitset<32> v1(vala);
-    std::bitset<32> v2(valb);
-    std::bitset<33> carry_set;
-    std::bitset<32> dst;
-    unsigned int result  = 0;
-    int temp;
-    int int_length = 32;
 
-    carry_set[0] = 0;
-    for(int i = 0; i< int_length ; i++)
+    switch(controller)
     {
-        carry_set[i + 1] = (v1[i] && v2[i] )|| ((v1[i] || v2[i]) \
-                && carry_set[i]);
-        dst[i]  = v1[i] ^ v2[i] ^ carry_set[i];
-        temp = dst[i];
-        result += temp << i;
+        case 02200:
+            alu = new ACAdder(vala, valb);
+            return alu->operate();
+        case 02201:
+            alu = new Suber(vala, valb);
+            return alu->operate();
+        defalut:
+            return vala;
     }
-    carry = carry_set[32];
-    return result;
-}
-
-int ALUManage::ac_adder(int vala,
-        int valb,
-        int &carry)
-{
-    std::bitset<32> v1(vala);
-    std::bitset<32> v2(valb);
-    std::bitset<33> carry_set;
-    std::bitset<32> dst;
-    int result  = 0;
-    int temp;
-    int int_length = 32;
-
-    carry_set[0] = 0;
-    for(int i = 0; i< int_length ; i++)
-    {
-        carry_set[i + 1] = (v1[i] && v2[i] )|| ((v1[i] || v2[i]) \
-                && carry_set[i]);
-        dst[i]  = v1[i] ^ v2[i] ^ carry_set[i];
-        temp = dst[i];
-        result += temp << i;
-    }
-    carry = carry_set[32];
-    return result;
+    return 0;
 }
 

@@ -1,6 +1,6 @@
 # this is a makefile of the c++ project main
 # the standard c compiler on GNU linux is g++
-# written by wben on November 18th, 2013
+# written by wben on November 19th, 2013
 
                     TARGET = .
 
@@ -9,9 +9,13 @@
                      CFLAGC = -c
 
                         SRC = alu_manage.cpp \
-                              test.cpp
+                              alu_operate.cpp \
+                              test.cpp\
+							  ../register/register_operates.cpp
                        OBJS = alu_manage.o \
-                              test.o
+                              alu_operate.o \
+                              test.o\
+							  register_operates.o
                        EXEC = main
 
                     INCLUDE = 
