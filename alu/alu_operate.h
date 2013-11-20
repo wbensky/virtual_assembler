@@ -19,7 +19,7 @@ class BaseALUOperate
 class ACAdder:public BaseALUOperate
 {
     private:
-        RegisterOperaters reg;
+        RegisterOperates reg;
     public:
         ACAdder(int, int);
         int operate();
@@ -39,5 +39,55 @@ class Suber:public BaseALUOperate
         int operate();
 };
 
+class Muler:public BaseALUOperate
+{
+    private:
+        int is_mul_overflow(int a, int b);
+    public:
+        Muler(int, int);
+        int operate();
+};
+
+class Diver:public BaseALUOperate
+{
+    public:
+        Diver(int, int);
+        int operate();
+};
+
+class Noter:public BaseALUOperate
+{
+    public:
+        Noter(int, int);
+        int operate();
+};
+
+class Xorer:public BaseALUOperate
+{
+    public:
+        Xorer(int, int);
+        int operate();
+};
+
+class Orer:public BaseALUOperate
+{
+    public:
+        Orer(int, int);
+        int operate();
+};
+
+class Ander:public BaseALUOperate
+{
+    public:
+        Ander(int, int);
+        int operate();
+};
+
+class Cmper:public BaseALUOperate
+{
+    public:
+        Cmper(int, int);
+        int operate();
+};
 
 #endif
