@@ -11,11 +11,10 @@ Auther: wwl;
 class StackOperates
 {
     private:
-        unsigned int (&stack_buffer)[1000];
+        static unsigned int stack_buffer[1000];
         RegisterOperates reg;
     public:
         StackOperates();
-        static unsigned int (&create_buffer())[1000];
 
         void pushl(unsigned int);
         unsigned popl();

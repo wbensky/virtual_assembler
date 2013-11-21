@@ -1,13 +1,9 @@
 #include"stack_operates.h"
 
-StackOperates::StackOperates():stack_buffer(create_buffer())
-{
-}
+unsigned int StackOperates::stack_buffer[1000] = {0};
 
-unsigned int(& StackOperates::create_buffer())[1000]
+StackOperates::StackOperates()
 {
-    static unsigned int buffer [1000];
-    return buffer;
 }
 
 void StackOperates::pushl(unsigned int value)
