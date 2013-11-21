@@ -7,11 +7,10 @@
 class InstructionBinary
 {
 private:
-    std::map<std::string, int> &instruction_binary;
+    static std::map<std::string, int> instruction_binary;
 public:
     InstructionBinary();
 
-    std::map<std::string, int>& create_map();
     int get_binary(std::string key_instruction);
 };
 
