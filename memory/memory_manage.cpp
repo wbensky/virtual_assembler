@@ -1,14 +1,9 @@
 #include"memory_manage.h"
 
-MemoryManage::MemoryManage():
-    memory_buffer(create_memory_buffer())
-{
-}
+unsigned char MemoryManage::memory_buffer[1000000] = {0};
 
-unsigned char (&MemoryManage::create_memory_buffer())[1000000]
+MemoryManage::MemoryManage()
 {
-    static unsigned char buffer[1000000];
-    return buffer;
 }
 
 int MemoryManage::set_instruction(int address,
@@ -66,6 +61,7 @@ int MemoryManage::write_data(int address,
     memcpy(&(memory_buffer[address]), data, size * 4);
     return 0;
 }
+
 int MemoryManage::read_data(int address,
         unsigned char data[],
         int size)
@@ -73,6 +69,7 @@ int MemoryManage::read_data(int address,
     memcpy(data, &(memory_buffer[address]), size);
     return 0;
 }
+
 int MemoryManage::read_data(int address,
         unsigned int data[],
         int size)
@@ -80,6 +77,7 @@ int MemoryManage::read_data(int address,
     memcpy(data, &(memory_buffer[address]), size * 4);
     return 0;
 }
+
 int MemoryManage::print()
 {
     for(int i = 0; i < 12; i++)
@@ -90,4 +88,3 @@ int MemoryManage::print()
     std::cout << "\n";
     return 0;
 }
-

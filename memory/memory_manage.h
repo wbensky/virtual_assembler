@@ -1,5 +1,6 @@
 #ifndef VA_MEMORY_MEMORY_MANAGE_H_
 #define VA_MEMORY_MEMORY_MANAGE_H_
+
 #include<iostream>
 #include<cstring>
 #include<cstdlib>
@@ -10,14 +11,13 @@
 Datatime: 11,13,2013
 Auther:wwl
 */
+
 class MemoryManage
 {
     private:
-        unsigned char (&memory_buffer)[1000000];
+        static unsigned char memory_buffer[1000000];
     public:
         MemoryManage();
-
-        static unsigned char (&create_memory_buffer())[1000000];
 
         int set_instruction(int address,
                 unsigned char code,

@@ -4,7 +4,7 @@
 
                     TARGET = .
 
-                        GCC = g++
+                        GCC = g++ -std=c++11
                      CFLAGS = -g -Wall
                      CFLAGC = -c
 
