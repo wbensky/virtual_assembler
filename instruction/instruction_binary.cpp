@@ -1,6 +1,7 @@
 #include"instruction_binary.h"
 #include<iostream>
-InstructionBinary::InstructionBinary():instruction_binary(create_map())
+
+InstructionBinary::InstructionBinary()
 {
 }
 
@@ -11,93 +12,82 @@ int InstructionBinary::get_binary(std::string  key_instruction)
     return -1;
 }
 
+std::map<std::string, int> InstructionBinary::instruction_binary{
+    {"rrmovb", 0x10},
+        {"irmovb", 0x11},
+        {"rmmovb", 0x12},
+        {"mrmovb", 0x13},
+        {"rrmovl", 0x18},
+        {"irmovl", 0x19},
+        {"rmmovl", 0x1a},
+        {"mrmovl", 0x1b},
+
+        {"inc", 0x21},
+        {"dec", 0x22},
+        {"addb", 0x31},
+        {"subb", 0x32},
+        {"mulb", 0x33},
+        {"divb", 0x34},
+        {"uaddb", 0x35},
+        {"usubb", 0x36},
+        {"umulb", 0x37},
+        {"udivb", 0x38},
+        {"mod", 0x30},
+        {"addl", 0x40},
+        {"subl", 0x41},
+        {"mull", 0x42},
+        {"divl", 0x43},
+        {"uaddl", 0x44},
+        {"usubl", 0x45},
+        {"umull", 0x46},
+        {"udivl", 0x47},
+        {"fadd", 0x48},
+        {"fsub", 0x49},
+        {"fmul", 0x4a},
+        {"fdiv", 0x4b},
+
+        {"negb", 0x50},
+        {"notb", 0x51},
+        {"xorb", 0x52},
+        {"orb", 0x53},
+        {"andb", 0x54},
+        {"negl", 0x55},
+        {"notl", 0x56},
+        {"xorl", 0x57},
+        {"orl", 0x58},
+        {"andl", 0x59},
+        {"sal", 0x5a},
+        {"shl", 0x5b},
+        {"sar", 0x5c},
+        {"shr", 0x5d},
+
+        {"cmpb", 0x60},
+        {"cmpl", 0x61},
+        {"fcmp", 0x62},
+        {"testb", 0x63},
+        {"testl", 0x64},
 
 
-std::map<std::string, int>& InstructionBinary::create_map()
-{
-    static  std::map<std::string, int> m;
-    static int mutex = 0;
-    if(mutex == 0)
-    {
-        mutex = 1;
-        m["rrmovb"] = 0x10;
-        m["irmovb"] = 0x11;
-        m["rmmovb"] = 0x12;
-        m["mrmovb"] = 0x13;
-        m["rrmovl"] = 0x18;
-        m["irmovl"] = 0x19;
-        m["rmmovl"] = 0x1a;
-        m["mrmovl"] = 0x1b;
+        {"jmp", 0x70},
+        {"je", 0x71},
+        {"jne", 0x72},
+        {"js", 0x73},
+        {"jns", 0x74},
+        {"jg", 0x75},
+        {"jge", 0x76},
+        {"jl", 0x77},
+        {"jle", 0x78},
+        {"ja", 0x79},
+        {"jae", 0x7a},
+        {"jb", 0x7b},
+        {"jbe", 0x7c},
 
-        m["inc"] = 0x21;
-        m["dec"] = 0x22;
-        m["addb"] = 0x31;
-        m["subb"] = 0x32;
-        m["mulb"] = 0x33;
-        m["divb"] = 0x34;
-        m["uaddb"] = 0x35;
-        m["usubb"] = 0x36;
-        m["umulb"] = 0x37;
-        m["udivb"] = 0x38;
-        m["mod"] = 0x30;
-        m["addl"] = 0x40;
-        m["subl"] = 0x41;
-        m["mull"] = 0x42;
-        m["divl"] = 0x43;
-        m["uaddl"] = 0x44;
-        m["usubl"] = 0x45;
-        m["umull"] = 0x46;
-        m["udivl"] = 0x47;
-        m["fadd"] = 0x48;
-        m["fsub"] = 0x49;
-        m["fmul"] = 0x4a;
-        m["fdiv"] = 0x4b;
-
-        m["negb"] = 0x50;
-        m["notb"] = 0x51;
-        m["xorb"] = 0x52;
-        m["orb"] = 0x53;
-        m["andb"] = 0x54;
-        m["negl"] = 0x55;
-        m["notl"] = 0x56;
-        m["xorl"] = 0x57;
-        m["orl"] = 0x58;
-        m["andl"] = 0x59;
-        m["sal"] = 0x5a;
-        m["shl"] = 0x5b;
-        m["sar"] = 0x5c;
-        m["shr"] = 0x5d;
-
-        m["cmpb"] = 0x60;
-        m["cmpl"] = 0x61;
-        m["fcmp"] = 0x62;
-        m["testb"] = 0x63;
-        m["testl"] = 0x64;
-
-
-        m["jmp"] = 0x70;
-        m["je"] = 0x71;
-        m["jne"] = 0x72;
-        m["js"] = 0x73;
-        m["jns"] = 0x74;
-        m["jg"] = 0x75;
-        m["jge"] = 0x76;
-        m["jl"] = 0x77;
-        m["jle"] = 0x78;
-        m["ja"] = 0x79;
-        m["jae"] = 0x7a;
-        m["jb"] = 0x7b;
-        m["jbe"] = 0x7c;
-
-        m["call"] = 0x80;
-        m["leave"] = 0x81;
-        m["ret"] = 0x82;
-        m["int"] = 0x83;
-        m["halt"] = 0x84;
-        m["nop"] = 0x85;
-        m["pushl"] = 0x86;
-        m["popl"] = 0x87;
-    }
-    return m;
-}
-
+        {"call", 0x80},
+        {"leave", 0x81},
+        {"ret", 0x82},
+        {"int", 0x83},
+        {"halt", 0x84},
+        {"nop", 0x85},
+        {"pushl", 0x86},
+        {"popl", 0x87}
+};
