@@ -31,6 +31,8 @@ int ALUManage::select_operate()
             alu = new Ander(vala, valb);
         case 0x61:
             alu = new Cmper(vala, valb);
+        case 0x85:
+            alu = new Noper(vala, valb);
         default:
             return vala;
     }

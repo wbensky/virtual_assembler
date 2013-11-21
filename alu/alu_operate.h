@@ -89,5 +89,11 @@ class Cmper:public BaseALUOperate
         Cmper(int, int);
         int operate();
 };
+class Noper:public BaseALUOperate
+{
+    Public:
+        Noper(int, int);
+        int operate();
+};
 
 #endif

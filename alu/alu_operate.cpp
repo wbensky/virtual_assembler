@@ -184,5 +184,12 @@ int Cmper::operate()
     return vala;
 }
 
+Noper::Noper(int a, int b):BaseOperate(a, b)
+{
+}
 
+int Noper::operate()
+{
+    return vala;
+}
 
