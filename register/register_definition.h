@@ -6,12 +6,10 @@
 class RegisterDefinition
 {
     private:
-        std::map<std::string, int> &register_definition;
+        static std::map<std::string, int> register_definition;
     public:
         RegisterDefinition();
 
         int get_binary(std::string);
-        std::map<std::string, int> &create_register_definition();
 };
-
 #endif
