@@ -9,9 +9,13 @@
                      CFLAGC = -c
 
                         SRC = compile.cpp \
-                              test.cpp
-                       OBJS = compile.o \
-                              test.o
+                              test.cpp \
+							  ../instruction/instruction_binary.cpp \
+							  ../register/register_definition.cpp                       
+						OBJS = compile.o \
+                              test.o \
+							  instruction_binary.o \
+							  register_definition.o
                        EXEC = main
 
                     INCLUDE = 

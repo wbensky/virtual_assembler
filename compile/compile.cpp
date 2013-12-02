@@ -16,18 +16,27 @@ std::set<std::string> CompileManage::jmp_instructions ={
     "jbe"
 };
 
-CompileManage::CompileManage()
+std::set<std::string> CompileManage::pseudoinstructions={
+    ".data",
+    ".end_data",
+    "usect",
+    ".end_usect",
+    ".int",
+    ".uint",
+    ".text",
+    "end"
+};
+
+CompileManage::CompileManage(std::string file_name):
+    in_file_name(file_name),syntax_error("syntax_error: ")
 {
 }
+CompileManage::CompileManage(std::string in_file, std::string out_file):
+    in_file_name(in_file),
+    out_file_name(out_file),
+    syntax_error("syntax_error: ")
 
-void CompileManage::read_code_from_file(std::string file_name)
 {
-    char temp[300];
-    std::ifstream input(file_name);
-    while(input.getline(temp, 100))
-    {
-        code_file.push_back(temp);
-    }
 }
 
 void CompileManage::get_labels()
@@ -104,15 +113,36 @@ bool CompileManage::is_labels(std::string label, std::string &error_temp)
     return true;
 }
 
+void CompileManage::init_register_pc()
+{
+    /*
+     * mov pc .text
+     * nop
+     * nop
+     * */
+}
+
 void CompileManage::operate_code_file()
 {
     std::string::size_type n;
-    get_labels();
+    char temp[300];
+
+    std::ifstream input(in_file_name);
+
+    while(input.getline(temp, 100))
+    {
+        code_file.push_back(temp);
+    }
+
+    get_labels(); //add error operations
+    init_register_pc();
+
     for(int i = 0; i< code_file.size(); i++)
     {
         std::string temp = code_file[i];
         n = temp.find(".data");
-        if(n !=  std::string::npos)
+
+        if(n !=  std::string::npos) //add error operations
         {
             i = get_data(i);
             continue;
@@ -209,7 +239,7 @@ std::string CompileManage::get_var(int pos)
         for( j = 0; j < temp.size(); j ++)
             if(temp[j] != ' ' && temp[j] != '\t')
                 error_record.push_back("syntax error: var error at line" + std::to_string(i));
-        return ""; 
+        return "";
     }
     for(k = n -1; temp[k] == ' '||temp[k] == '\t'; k--)
         ;
@@ -218,6 +248,7 @@ std::string CompileManage::get_var(int pos)
 
     return temp.substr(j + 1, k-j);
 }
+
 void CompileManage::get_vars(int pos)
 {
     int i, j,k;
@@ -271,8 +302,6 @@ int CompileManage::get_usect(int pos)
     return i;
 }
 
-
-
 int CompileManage::get_text(int pos)
 {
     int i;
@@ -292,7 +321,58 @@ int CompileManage::get_text(int pos)
     }
     add_nop_conflict();
     add_nop_jmp();
+    update_labels_record();
+    update_instructions_to_binary();
+
     return i;
+}
+
+int CompileManage::get_arg_binary(std::string arg1)
+{
+    if(arg1 == "")
+        return 0;
+    if(labels_record.find(arg1) != labels_record.end())
+        return labels_record[arg1];
+    if(vars_record.find(arg1) != vars_record.end())
+        return vars_record[arg1];
+    if(regd.get_binary(arg1) != -1)
+        return regd.get_binary(arg1);
+    return std::stoi(arg1);
+}
+
+void CompileManage::update_instructions_to_binary()
+{
+    int instruction;
+    int var1;
+    int var2;
+    unsigned char ch;
+    for(auto item: instructions_record)
+    {
+        //std::cout << item.instruction << "\t"<< item.arg1<<"\t" <<
+        //   item.arg2<<std::endl;
+        instruction = insb.get_binary(item.instruction);
+        var1 = get_arg_binary(item.arg1);
+        var2 = get_arg_binary(item.arg2);
+        //std::cout << ""<<instruction<<" \t" << var1<<"\t" <<var2<<std::endl;
+        ch = instruction;
+        binary_file.push_back(ch);
+        ch = var1;
+        binary_file.push_back(ch);
+        write_into_binary_file(var2);
+    }
+}
+
+void CompileManage::update_labels_record()
+{
+    int c = 0;
+    for(auto item : instructions_record)
+    {
+        if(item.label != "")
+        {
+            labels_record[item.label] = c * 6 + binary_file.size();
+        }
+        c++;
+    }
 }
 
 void CompileManage::add_nop_conflict()
@@ -312,13 +392,13 @@ void CompileManage::add_nop_conflict()
                 instructions_record.insert(next,temp);
                 continue; 
             }
-         if(it -> arg2!="" && next ->arg1 != ""&&next->arg2 != "")
+        if(it -> arg2!="" && next ->arg1 != ""&&next->arg2 != "")
             if(it->arg2 == next->arg1 || it->arg2 == next->arg2)
             { 
                 instructions_record.insert(next,temp);
                 continue; 
             } 
-    
+
     }
 
 }
@@ -372,7 +452,7 @@ std::string CompileManage::get_arg2(std::string str)
     for(; str[start]== ' ' || str[start] == '\t'; start++)
         ;
 
-    for(end = start; end < str.size() && str[end] >='a' && str[end] <='z'; end++)
+    for(end = start; end < str.size() && ((str[end] >='a' && str[end] <='z') || (str[end] <= '9'&& str[end] >= 0) ||str[end] == '_'); end++)
         ;
 
     return str.substr(start, end - start);
@@ -421,10 +501,15 @@ int CompileManage::get_data(int pos)
 {
     int i;
     std::string::size_type n;
+
+    if(find_data_error(pos))
+    {     std::cout << "1"<<std::endl;
+        return pos + 1;
+    }
     for( i = pos + 1; code_file[i].find(".end_data")== std::string::npos ; i++)
     {
         if((n = code_file[i].find(":")) != std::string::npos)
-            change_label(i , n);
+            change_label(i, n);
         if((n = code_file[i].find(".int")) != std::string::npos)
         {
             get_int_from_data(i);
@@ -439,6 +524,7 @@ int CompileManage::get_data(int pos)
     return i;
 }
 
+// find data segement error
 
 
 void CompileManage::write_into_binary_file(int num)
@@ -515,14 +601,256 @@ void CompileManage::change_var(std::string str)
     vars_record[str] = binary_file.size();
 }
 
+
+
+//error_opera
+bool CompileManage::find_data_error(int pos)
+{
+    bool flag = false;
+    std::vector<std::string> legal_pesudoi;
+
+    if(uniq_pesudoi_error(".data", code_file[pos], pos) == true)
+        flag = true;
+    if(find_oppside_pesudoi(".end_data", pos) == false)
+    {
+        flag = true;
+        return flag;
+    }
+
+    legal_pesudoi.push_back(".int");
+    legal_pesudoi.push_back(".uint");
+    if(find_error_pesudoi(legal_pesudoi, "end_data", pos) == true)
+    {
+        flag = true;
+        return flag;
+    }
+
+    if(find_data_num_error(pos, "end_data"))
+    {
+        flag = true;
+        return flag;
+    }
+
+    return flag;
+}
+bool CompileManage::find_data_num_error(int pos, std::string end_str)
+{
+    bool flag =false;
+    for(int i = 0; code_file[i].find(end_str) == std::string::npos; i++ )
+    {
+        if(code_file[i].find(".int") != std::string::npos)
+            if(find_data_int_num_error(i, code_file[i], -1) == true)
+                flag = true;
+        if(code_file[i].find(".uint") != std::string::npos)
+            if( find_data_int_num_error(i, code_file[i], 1)== true)
+                flag = true;
+
+    }
+    return flag;
+}
+
+bool CompileManage::find_data_int_num_error(int i,std::string str , int sym)
+{
+    std::string::size_type n;
+    int j;
+    bool sy = false;
+
+    n = str.find('.');
+
+    for(j = n + 1; j < str.size() && (str[j] > '9'|| str[j]< '0' || str[j] == '-') ; j++)
+        ;
+
+    if(j >= code_file[i].size())
+        return true;
+    int flag = 0; // num
+
+    for(; j < code_file[i].size() ; j++)
+    {
+        char c = code_file[i][j];
+        //std::cout<< "flag:" << flag <<std::endl;
+        //std::cout<< "c:" <<c<<std::endl;
+        if(sym == 1)
+        {
+            if(! (c == ' ' || c== '\t' ||( c >= '0' && c<='9')|| c== ','))
+            {
+                error_record.push_back(syntax_error + c +  " is unlegal character at line:" + std::to_string(i) );
+                return true; 
+            }
+        }
+        else if(sym == -1)
+            if(! (c == ' ' || c== '\t' ||( c >= '0' && c<='9')|| c== ',' || c== '-'))
+            {
+                error_record.push_back(syntax_error + c +  " is unlegal character at line:" + std::to_string(i) );
+                return true; 
+            }
+
+        if(flag == 0)
+        {
+            if(c == ' ' || c == '\t')
+            {
+                flag = 1; // space after num
+                continue;
+            }
+
+            if(c  <= '9' &&c >= '0')
+            {
+                continue;
+            }
+
+            if(c == ',')
+            {
+                flag = 2; // comma after num
+                continue;
+            }
+
+            if(c == '-')
+            {
+                error_record.push_back(syntax_error + "'-' is not a num at line: " + std::to_string(i));
+                return true;
+            }
+        }
+        if(flag == 1)//space after num
+        {
+            if(c == ' ' || c == '\t')
+            {
+                continue; 
+            }
+            if((c <= '9' && c >='0')||c == '-' )
+            {
+                error_record.push_back(syntax_error + c + "lack comma ',' " + "at line:" + std::to_string(i) + "at position: " + std::to_string(j));
+                return true;
+            }
+            if(c == ',')
+            {
+                flag = 2;
+                continue;
+            }
+
+        }
+        if(flag ==2) //comma after num
+        {
+            if(c == ' ' || c == '\t' )
+            {
+                flag = 2;
+                continue;
+            }
+            if((c <= '9' && c >='0') || c=='-' )
+            {
+                flag = 0;
+                continue;
+            }
+            if(c == ',')
+            {
+                error_record.push_back(syntax_error + "lack a num here at line: " + std::to_string(i) +"at position" +  std::to_string(j));
+                return true;
+            }
+        }
+    }
+    return sy;
+}
+
+bool CompileManage::find_error_pesudoi(std::vector<std::string>& legal_pesudoi, std::string end_str, int pos)
+{
+    int flag = false;
+    std::string::size_type n;
+    int j;
+    for(int i = pos + 1;code_file[i].find(end_str) == std::string::npos; i++)
+    {
+        if(code_file[i] == "")
+            continue;
+        n = code_file[i].find(':');
+        for(j = n == std::string::npos? 0: n+1; j < code_file[i].size() && (code_file[i][j] == ' ' || code_file[i][j] == '\t'); j++)
+            ;
+        if(j >= code_file[i].size())
+            continue;
+        n = code_file[i].find('.');
+        if(n == std::string::npos)
+        {   error_record.push_back(syntax_error + "this line should add pesudoinstruction like .int or .uint and so on" + "at line" + std::to_string(i));
+
+            flag = true;
+        }
+
+        for(j = n + 1; code_file[i][j] != ' ' && code_file[i][j] != '\t'; j++ )
+            ;
+        std::string pesu_temp = code_file[i].substr(n, j - n);
+        if(find(legal_pesudoi.begin(), legal_pesudoi.end(), pesu_temp) == legal_pesudoi.end())
+        {
+            error_record.push_back(syntax_error + pesu_temp + "is unlegal here at line: " + std::to_string(i));
+        }
+    }
+
+    return flag;
+}
+
+
+bool CompileManage::uniq_pesudoi_error(std::string pesudoi,
+        std::string str,int pos)
+{
+    int i;
+    bool flag = false;
+    std::string::size_type n;
+
+    n = str.find(".data");
+
+    for( i = n - 1; ;i--)
+    {
+        if(i == 0)
+            break;
+        if(str[i] == ':')
+            break;
+        if(str[i] != ' ' && str[i] != '\t')
+        {
+            flag = true;
+            error_record.push_back(syntax_error + "is label? at position" + std::to_string(i) + "at line:" + std::to_string(pos));
+            break;
+        }
+    }
+
+    if(code_file[pos][i-1] == ' ' || code_file[pos][i - 0] =='\t')
+    {
+        error_record.push_back( syntax_error + "error .data;");
+        flag =true;
+    }
+
+    for( i = n + 5; i < str.size() && (str[i] == ' ' ||str[i] == '\t'); i++ )
+        ;
+    if(i != str.size())
+    {
+        error_record.push_back(syntax_error + "position: " + std::to_string(i) + " should not exist; at line: " + std::to_string(i) );
+        flag = true;
+    }
+    return flag;
+}
+
+bool CompileManage::find_oppside_pesudoi(std::string opsi_str, int pos)
+{
+    std::string::size_type n;
+    for(int i = pos + 1; i < code_file.size(); i++)
+    {
+        if( (n = code_file[i].find(opsi_str)) != std::string::npos)
+        {
+            if(n+opsi_str.size() >= code_file[i].size() ||
+                    code_file[i][n + opsi_str.size()] == ' ' ||
+                    code_file[i][n + opsi_str.size()] == '\t')
+            {
+                if( code_file[i][n - 1] == ' ' || code_file[i][n-1] == '\t')
+                { 
+                    return true;
+                } 
+            }
+        }
+    }
+    return  false;
+}
+
 void CompileManage::print_all()
 {
     //print_labels_record();
     //print_vars_record();
-    //print_error_record();
+    print_error_record();
     //print_code_file();
-    //print_binary_file();
-    print_instructions_record();
+    print_binary_file();
+    //print_instructions_record();
 }
 
 void CompileManage::print_instructions_record()
@@ -584,4 +912,3 @@ void CompileManage::print_error_record()
         std::cout << error_record[i] << std::endl;
     }
 }
-

@@ -5,9 +5,12 @@
 #include<string>
 #include<map>
 #include<fstream>
+#include<algorithm>
 #include<iostream>
 #include<set>
 #include<list>
+#include"../instruction/instruction_binary.h"
+#include"../register/register_definition.h"
 
 class InstructionStructure
 {
@@ -26,22 +29,31 @@ class CompileManage
         std::map<std::string, int> labels_record;
         std::vector <std::string> error_record;
         std::map <std::string, int> vars_record;
+        std::string in_file_name;
+        std::string out_file_name;
+        std::string syntax_error;
         //about instruction
-
         static std::set<std::string> jmp_instructions;
-        std::list<InstructionStructure> instructions_record; 
+        static std::set<std::string> pseudoinstructions;
+        
+        std::list<InstructionStructure> instructions_record;
+        InstructionBinary insb;
+        RegisterDefinition regd;
+
     public:
-        CompileManage();
+        CompileManage(std::string);
+        CompileManage(std::string, std::string);
 
         //utils
         bool string_is_empty(std::string);
 
-        void read_code_from_file(std::string );
+        //operate label
         void get_labels();
         void change_label(int, int );
         bool is_labels(std::string ,std::string &);
         bool is_vars(std::string, std::string&);
         void operate_code_file();
+        void init_register_pc();
         void change_var(std::string);
 
         //get_data operates
@@ -50,6 +62,7 @@ class CompileManage
         void get_uint_from_data(int);
         void write_into_binary_file(int);
         void write_into_binary_file(unsigned long);
+
         int get_usect(int );
         void get_int_from_usect(int);
         void get_uint_from_usect(int);
@@ -65,7 +78,19 @@ class CompileManage
         std::string get_arg1(std::string);
         std::string get_arg2(std::string);
         void add_nop_jmp();
-        void add_nop_conflict(); 
+        void add_nop_conflict();
+        void update_labels_record();
+        void update_instructions_to_binary();
+        int get_arg_binary(std::string);
+
+        // error operations
+        bool find_data_error(int);
+
+        bool uniq_pesudoi_error(std::string, std::string ,int pos);
+        bool find_oppside_pesudoi(std::string, int pos);
+        bool find_error_pesudoi(std::vector<std::string>&,std::string , int pos);
+        bool find_data_num_error(int pos, std::string);
+        bool find_data_int_num_error(int ,std::string, int);
         //print test
         void print_instructions_record();
         void print_labels_record();
