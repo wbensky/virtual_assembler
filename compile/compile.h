@@ -35,11 +35,11 @@ class CompileManage
         //about instruction
         static std::set<std::string> jmp_instructions;
         static std::set<std::string> pseudoinstructions;
-        
+
         std::list<InstructionStructure> instructions_record;
         InstructionBinary insb;
         RegisterDefinition regd;
-
+        int text_position;
     public:
         CompileManage(std::string);
         CompileManage(std::string, std::string);
@@ -61,6 +61,7 @@ class CompileManage
         void get_int_from_data(int);
         void get_uint_from_data(int);
         void write_into_binary_file(int);
+        void write_into_binary_file(int, int );
         void write_into_binary_file(unsigned long);
 
         int get_usect(int );
@@ -81,16 +82,22 @@ class CompileManage
         void add_nop_conflict();
         void update_labels_record();
         void update_instructions_to_binary();
+        void update_instructions_to_binary(std::list<InstructionStructure> &);
         int get_arg_binary(std::string);
 
         // error operations
         bool find_data_error(int);
-
         bool uniq_pesudoi_error(std::string, std::string ,int pos);
         bool find_oppside_pesudoi(std::string, int pos);
         bool find_error_pesudoi(std::vector<std::string>&,std::string , int pos);
         bool find_data_num_error(int pos, std::string);
         bool find_data_int_num_error(int ,std::string, int);
+
+        bool find_usect_error(int);
+        bool find_usect_num_error(int pos, std::string);
+        bool find_usect_int_num_error(int, std::string);
+
+        bool find_text_error();
         //print test
         void print_instructions_record();
         void print_labels_record();
@@ -99,5 +106,6 @@ class CompileManage
         void print_code_file();
         void print_error_record();
         void print_all();
+        void printd();
 };
 #endif

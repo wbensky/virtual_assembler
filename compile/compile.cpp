@@ -35,7 +35,6 @@ CompileManage::CompileManage(std::string in_file, std::string out_file):
     in_file_name(in_file),
     out_file_name(out_file),
     syntax_error("syntax_error: ")
-
 {
 }
 
@@ -120,6 +119,19 @@ void CompileManage::init_register_pc()
      * nop
      * nop
      * */
+    std::list<InstructionStructure> instructions_record;
+    InstructionStructure temp;
+    temp.label = "";
+    temp.instruction = "irmovl";
+    temp.arg1 = "pc";
+    temp.arg2 = "11";
+    instructions_record.push_back(temp);
+    temp.arg1 = "";
+    temp.arg2 = "";
+    temp.instruction = "nop";
+    instructions_record.push_back(temp);
+    instructions_record.push_back(temp);
+    update_instructions_to_binary(instructions_record);
 }
 
 void CompileManage::operate_code_file()
@@ -158,10 +170,14 @@ void CompileManage::operate_code_file()
         n = temp.find(".text");
         if(n != std::string::npos)
         {
+            text_position = binary_file.size();
             i = get_text(i);
             continue;
         }
+        
     }
+        std::cout << text_position << std::endl;
+        write_into_binary_file(text_position, 2);
 }
 
 int CompileManage::get_int_from_string(std::string str,int &num_end)
@@ -266,13 +282,12 @@ void CompileManage::get_vars(int pos)
             continue;
         if(is_vars(var, error_str) == true)
         {
-            vars_record[var] = -1;
+        vars_record[var] = -1;
         }
         else
         {
-            error_record.push_back(error_str + "at line:" + std::to_string(i));
+            error_record.push_back(syntax_error + "illegal pesudoi at line:" + std::to_string(i));
         }
-
     }
 }
 
@@ -280,7 +295,10 @@ int CompileManage::get_usect(int pos)
 {
     int i;
     std::string::size_type n;
-    get_vars(pos);
+
+    if(find_usect_error(pos))
+        return pos + 1;
+
     for( i= pos + 1;
             code_file[i].find(".end_usect") == std::string::npos;
             i++)
@@ -306,6 +324,12 @@ int CompileManage::get_text(int pos)
 {
     int i;
     std::string::size_type n;
+
+    if(uniq_pesudoi_error(".text",code_file[pos], pos))
+        return pos + 1;
+    if(find_oppside_pesudoi(".end", pos) == false)
+        return pos + 1;
+
     for(i = pos + 1;
             code_file[i].find(".end") ==std::string::npos;
             i++)
@@ -319,6 +343,9 @@ int CompileManage::get_text(int pos)
         temp.arg2 = get_arg2(code_file[i]);
         instructions_record.push_back(temp);
     }
+    if(find_text_error()== true)
+        return pos + 1;
+
     add_nop_conflict();
     add_nop_jmp();
     update_labels_record();
@@ -361,6 +388,29 @@ void CompileManage::update_instructions_to_binary()
         write_into_binary_file(var2);
     }
 }
+
+void CompileManage::update_instructions_to_binary(std::list<InstructionStructure> & instructions_record)
+{
+    int instruction;
+    int var1;
+    int var2;
+    unsigned char ch;
+    for(auto item: instructions_record)
+    {
+        //std::cout << item.instruction << "\t"<< item.arg1<<"\t" <<
+        //   item.arg2<<std::endl;
+        instruction = insb.get_binary(item.instruction);
+        var1 = get_arg_binary(item.arg1);
+        var2 = get_arg_binary(item.arg2);
+        //std::cout << ""<<instruction<<" \t" << var1<<"\t" <<var2<<std::endl;
+        ch = instruction;
+        binary_file.push_back(ch);
+        ch = var1;
+        binary_file.push_back(ch);
+        write_into_binary_file(var2);
+    }
+}
+
 
 void CompileManage::update_labels_record()
 {
@@ -524,6 +574,22 @@ int CompileManage::get_data(int pos)
     return i;
 }
 
+bool CompileManage::find_text_error()
+{
+    bool flag = false;
+
+    for(auto item: instructions_record)
+    {
+        if(insb.get_binary(item.instruction) == -1)
+        {
+            error_record.push_back(syntax_error + "instruction" + item.instruction + " not exist");
+            flag = true; 
+        } 
+    }
+    return flag;
+}
+
+
 // find data segement error
 
 
@@ -533,6 +599,14 @@ void CompileManage::write_into_binary_file(int num)
     for(int i = 0 ;i < 4; i++)
         binary_file.push_back( *(p + i));
 }
+
+void CompileManage::write_into_binary_file(int num, int position)
+{
+    unsigned char *p = (unsigned char*)&num;
+    for(int i = 0 ;i < 4; i++)
+        binary_file[position + i] = ( *(p + i));
+}
+
 
 void CompileManage::write_into_binary_file(unsigned long num)
 {
@@ -633,10 +707,60 @@ bool CompileManage::find_data_error(int pos)
 
     return flag;
 }
+
+bool CompileManage::find_usect_error(int pos)
+{
+    bool flag = false;
+    std::vector<std::string> legal_pesudoi;
+
+    if(uniq_pesudoi_error(".usect", code_file[pos], pos) == true)
+        flag = true;
+    if(find_oppside_pesudoi(".end_usect", pos) == false)
+    {
+        flag = true;
+        return flag;
+    }
+    legal_pesudoi.push_back(".int");
+    legal_pesudoi.push_back(".uint");
+
+    if(find_error_pesudoi(legal_pesudoi, ".end_usect", pos) == true)
+    {
+        flag = true;
+        return flag;
+    }
+    // vars error;
+    int pre_count = error_record.size();
+    get_vars(pos);
+    if(pre_count < error_record.size())
+       return true; 
+
+    if(find_usect_num_error(pos, "end_usect"))
+    {
+        flag= true;
+        return flag;
+    }
+    return flag;
+}
+
+bool CompileManage::find_usect_num_error(int pos, std::string end_str)
+{
+    bool flag = false;
+    for(int i = pos + 1; code_file[i].find(end_str) == std::string::npos; i++)
+    {
+        if(code_file[i].find(".int") != std::string::npos)
+            if(find_usect_int_num_error(i, code_file[i]) == true)
+                flag = true;
+        if(code_file[i].find(".uint") != std::string::npos)
+            if(find_usect_int_num_error(i, code_file[i]) == true)
+                flag = true;
+    }
+    return flag;
+}
+
 bool CompileManage::find_data_num_error(int pos, std::string end_str)
 {
     bool flag =false;
-    for(int i = 0; code_file[i].find(end_str) == std::string::npos; i++ )
+    for(int i = pos + 1; code_file[i].find(end_str) == std::string::npos; i++ )
     {
         if(code_file[i].find(".int") != std::string::npos)
             if(find_data_int_num_error(i, code_file[i], -1) == true)
@@ -649,6 +773,38 @@ bool CompileManage::find_data_num_error(int pos, std::string end_str)
     return flag;
 }
 
+bool CompileManage::find_usect_int_num_error(int i, std::string str)
+{
+    std::string::size_type n;
+    int j;
+    n = str.find(',');
+    if(n == std::string::npos)
+    {
+        error_record.push_back(syntax_error + "lack a comma at line:" + std::to_string(i));
+        return true;
+    }
+
+    for(j = n + 1; j < str.size() && (str[j] == ' ' || str[j] == '\t');j++)
+        ;
+    if(j >= str.size())
+    {
+        error_record.push_back(syntax_error + "lack num at line:" + std::to_string(i) );
+        return true;
+    }
+    int k = j;
+    for(; k< str.size() &&str[k]<= '9' && str[k]>= '0'; k++)
+        ;
+    if(k >= str.size())
+        return false;
+    for(; k< str.size()&&(str[k] == ' ' || str[k] == '\t'); k++)
+        ;
+    if(k < str.size())
+    {
+        error_record.push_back(syntax_error + "illegal num at line:" + std::to_string(i));
+        return true;
+    }
+        return false;
+}
 bool CompileManage::find_data_int_num_error(int i,std::string str , int sym)
 {
     std::string::size_type n;
@@ -673,14 +829,14 @@ bool CompileManage::find_data_int_num_error(int i,std::string str , int sym)
         {
             if(! (c == ' ' || c== '\t' ||( c >= '0' && c<='9')|| c== ','))
             {
-                error_record.push_back(syntax_error + c +  " is unlegal character at line:" + std::to_string(i) );
+                error_record.push_back(syntax_error + c +  " is illegal character at line:" + std::to_string(i) );
                 return true; 
             }
         }
         else if(sym == -1)
             if(! (c == ' ' || c== '\t' ||( c >= '0' && c<='9')|| c== ',' || c== '-'))
             {
-                error_record.push_back(syntax_error + c +  " is unlegal character at line:" + std::to_string(i) );
+                error_record.push_back(syntax_error + c +  " is illegal character at line:" + std::to_string(i) );
                 return true; 
             }
 
@@ -754,6 +910,7 @@ bool CompileManage::find_error_pesudoi(std::vector<std::string>& legal_pesudoi, 
     int flag = false;
     std::string::size_type n;
     int j;
+
     for(int i = pos + 1;code_file[i].find(end_str) == std::string::npos; i++)
     {
         if(code_file[i] == "")
@@ -775,13 +932,12 @@ bool CompileManage::find_error_pesudoi(std::vector<std::string>& legal_pesudoi, 
         std::string pesu_temp = code_file[i].substr(n, j - n);
         if(find(legal_pesudoi.begin(), legal_pesudoi.end(), pesu_temp) == legal_pesudoi.end())
         {
-            error_record.push_back(syntax_error + pesu_temp + "is unlegal here at line: " + std::to_string(i));
+            error_record.push_back(syntax_error + pesu_temp + "is illegal here at line: " + std::to_string(i));
         }
     }
 
     return flag;
 }
-
 
 bool CompileManage::uniq_pesudoi_error(std::string pesudoi,
         std::string str,int pos)
@@ -790,7 +946,7 @@ bool CompileManage::uniq_pesudoi_error(std::string pesudoi,
     bool flag = false;
     std::string::size_type n;
 
-    n = str.find(".data");
+    n = str.find(pesudoi);
 
     for( i = n - 1; ;i--)
     {
@@ -812,11 +968,11 @@ bool CompileManage::uniq_pesudoi_error(std::string pesudoi,
         flag =true;
     }
 
-    for( i = n + 5; i < str.size() && (str[i] == ' ' ||str[i] == '\t'); i++ )
+    for( i = n + pesudoi.size(); i < str.size() && (str[i] == ' ' ||str[i] == '\t'); i++ )
         ;
     if(i != str.size())
     {
-        error_record.push_back(syntax_error + "position: " + std::to_string(i) + " should not exist; at line: " + std::to_string(i) );
+        error_record.push_back(syntax_error + "position: " + std::to_string(i) + " should not exist; at line: " + std::to_string(pos) );
         flag = true;
     }
     return flag;
@@ -845,9 +1001,9 @@ bool CompileManage::find_oppside_pesudoi(std::string opsi_str, int pos)
 
 void CompileManage::print_all()
 {
-    //print_labels_record();
+    print_labels_record();
     //print_vars_record();
-    print_error_record();
+    //print_error_record();
     //print_code_file();
     print_binary_file();
     //print_instructions_record();
@@ -911,4 +1067,9 @@ void CompileManage::print_error_record()
     {
         std::cout << error_record[i] << std::endl;
     }
+}
+
+void CompileManage::printd()
+{
+    std::cout << "debug"<<std::endl;
 }
