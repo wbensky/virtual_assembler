@@ -30,7 +30,9 @@ std::set<std::string> CompileManage::pseudoinstructions={
 CompileManage::CompileManage(std::string file_name):
     in_file_name(file_name),syntax_error("syntax_error: ")
 {
+    out_file_name = in_file_name.substr(0, in_file_name.find('.')) + ".bin";
 }
+
 CompileManage::CompileManage(std::string in_file, std::string out_file):
     in_file_name(in_file),
     out_file_name(out_file),
@@ -58,6 +60,13 @@ void CompileManage::get_labels()
     }
 }
 
+
+/*
+ * error type:
+ *     var repeat definition
+ *     var begin with number
+ *     var only make up with number ,'_' and letter
+ * */
 bool CompileManage::is_vars(std::string var, std::string &error_temp)
 {
     if(vars_record.find(var) != vars_record.end())
@@ -85,6 +94,9 @@ bool CompileManage::is_vars(std::string var, std::string &error_temp)
     return true;
 }
 
+/*
+ * the same with is_var
+ * */
 bool CompileManage::is_labels(std::string label, std::string &error_temp)
 {
     if(labels_record.find(label) != labels_record.end())
@@ -174,10 +186,23 @@ void CompileManage::operate_code_file()
             i = get_text(i);
             continue;
         }
-        
+
     }
-        std::cout << text_position << std::endl;
+        //std::cout << text_position << std::endl;
         write_into_binary_file(text_position, 2);
+        output_file();
+}
+
+void CompileManage::output_file()
+{
+    if(error_record.size() != 0)
+    {
+        print_error_record();
+        return ;
+    }
+    std::ofstream output(out_file_name);
+    for (auto item:binary_file)
+        output<<std::hex <<(int) item <<std::endl;
 }
 
 int CompileManage::get_int_from_string(std::string str,int &num_end)
@@ -186,7 +211,7 @@ int CompileManage::get_int_from_string(std::string str,int &num_end)
     int flag = 0;
     int start;
     int end;
-    for (start= 0 ; start< len_str && (str[start] < '0' ||str[start] > '9' ); start++)
+    for (start = 0 ; start< len_str && (str[start] < '0' ||str[start] > '9' ); start++)
     {
         if(str[start] == '-')
         {
@@ -990,9 +1015,9 @@ bool CompileManage::find_oppside_pesudoi(std::string opsi_str, int pos)
                     code_file[i][n + opsi_str.size()] == '\t')
             {
                 if( code_file[i][n - 1] == ' ' || code_file[i][n-1] == '\t')
-                { 
+                {
                     return true;
-                } 
+                }
             }
         }
     }
@@ -1001,11 +1026,11 @@ bool CompileManage::find_oppside_pesudoi(std::string opsi_str, int pos)
 
 void CompileManage::print_all()
 {
-    print_labels_record();
+    //print_labels_record();
     //print_vars_record();
     //print_error_record();
     //print_code_file();
-    print_binary_file();
+    //print_binary_file();
     //print_instructions_record();
 }
 

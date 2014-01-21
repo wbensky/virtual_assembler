@@ -46,7 +46,7 @@ class CompileManage
 
         //utils
         bool string_is_empty(std::string);
-
+    
         //operate label
         void get_labels();
         void change_label(int, int );
@@ -99,6 +99,7 @@ class CompileManage
 
         bool find_text_error();
         //print test
+
         void print_instructions_record();
         void print_labels_record();
         void print_vars_record();
@@ -107,5 +108,6 @@ class CompileManage
         void print_error_record();
         void print_all();
         void printd();
+        void output_file();
 };
 #endif
