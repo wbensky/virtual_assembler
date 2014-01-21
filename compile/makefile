@@ -1,6 +1,6 @@
 # this is a makefile of the c++ project main
 # the standard c compiler on GNU linux is g++
-# written by wben on November 12th, 2013
+# written by wben on November 25th, 2013
 
                     TARGET = .
 
@@ -8,10 +8,14 @@
                      CFLAGS = -g -Wall
                      CFLAGC = -c
 
-                        SRC = instruction_binary.cpp \
-                              test.cpp
-                       OBJS = instruction_binary.o \
-                              test.o
+                        SRC = compile.cpp \
+                              test.cpp \
+							  ../instruction/instruction_binary.cpp \
+							  ../register/register_definition.cpp                       
+						OBJS = compile.o \
+                              test.o \
+							  instruction_binary.o \
+							  register_definition.o
                        EXEC = main
 
                     INCLUDE = 
