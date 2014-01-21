@@ -3,3 +3,5 @@ main
 test.cpp
 *swp
 *asm
+*bin
+a.out
