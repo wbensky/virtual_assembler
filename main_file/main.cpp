@@ -3,14 +3,26 @@
 #include<map>
 #include<vector>
 #include"../compile/compile.h"
+//#include"utils.h"
 
 void analyse_instruction(int argc, char **argv);
 
 int main(int argc, char **argv)
 {
-    analyse_instruction(argc - 1, argv + 1);
+    std::string str;
+    std::string str2;
+    
+    //if(argc > 1)
+     //   analyse_instruction(argc - 1, argv + 1);
+    std::cin >> str;
+    std::cout << str << std::endl;
+    std::cin >> str2;
+    std::cout << str2 << std::endl;
     return 0;
 }
+
+
+
 
 void analyse_instruction(int argc, char **argv)
 {
